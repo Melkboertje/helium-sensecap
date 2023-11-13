@@ -9,6 +9,8 @@ services:
       - helium-miner
       - diagnostics
     environment:
+      - REGION_OVERRIDE=EU868
+      - GW_REGION=EU868
       - FIRMWARE_VERSION=v1.3.0
       - FIRMWARE_SHORT_HASH=c2dd87a
       - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
@@ -35,6 +37,7 @@ services:
       - pktfwdr:/var/pktfwd
       - nebra:/var/nebra
     environment:
+      - REGION_OVERRIDE=EU868
       - FIRMWARE_VERSION=v1.3.0
       - FIRMWARE_SHORT_HASH=c2dd87a
     labels:
