@@ -42,41 +42,25 @@ services:
       io.balena.features.procfs: 1
 
   helium-miner:
-    image: nebraltd/hm-gatewayrs:arm64-5428419
-    depends_on:
-      - diagnostics
-    cap_add:
-      - SYS_RAWIO
-    privileged: true
-    restart: always
-    expose:
-      - "1680"
-      - "4467"
+    image: quay.io/team-helium/miner:gateway-latest
     environment:
       - REGION_OVERRIDE=EU868
       - GW_REGION=EU868
-      - FIRMWARE_VERSION=v1.3.0
-      - FIRMWARE_SHORT_HASH=c2dd87a
+      - GW_KEYPAIR=ecc://i2c-1
+      - GW_LISTEN=0.0.0.0:1680
+      - GW_API=0.0.0.0:4467
+    ports:
+      - "1680:1680/udp"
+      - "4467:4467/tcp"
+    cap_add:
+      - SYS_RAWIO
+    devices:
+      - /dev/i2c-1:/dev/i2c-1
+    restart: unless-stopped
     volumes:
       - pktfwdr:/var/pktfwd
       - miner-storage:/var/data
       - nebra:/var/nebra
-
-  multiplexer:
-    image: nebraltd/hm-multiplexer:a1fc09b
-    restart: always
-    depends_on:
-      - helium-miner
-    labels:
-      io.balena.features.sysfs: 1
-      io.balena.features.procfs: 1
-    volumes:
-      - nebra:/var/nebra
-    environment:
-      - FIRMWARE_VERSION=v1.3.0
-      - FIRMWARE_SHORT_HASH=c2dd87a
-    expose:
-      - "1681"
 
   diagnostics:
     image: nebraltd/hm-diag:arm64-6d56740
@@ -87,10 +71,8 @@ services:
       - FIRMWARE_SHORT_HASH=c2dd87a
       - DIAGNOSTICS_VERSION=6d56740
       - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
-      - GATEWAYRS_VERSION=5428419
       - CONFIG_VERSION=a198b83
       - PKTFWD_VERSION=5c3c90a
-      - MULTIPLEXER_VERSION=a1fc09b
     volumes:
       - pktfwdr:/var/pktfwd
       - miner-storage:/var/data
